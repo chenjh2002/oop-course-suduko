@@ -51,15 +51,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SUDUKO_SRC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/include)
 set(SUDUKO_THIRD_PARTY_DIR
         ${PROJECT_SOURCE_DIR}/third-party/googletest/googletest/include
+        ${PROJECT_SOURCE_DIR}/third-party/fmt/include
 )
 
 include_directories(${SUDUKO_SRC_INCLUDE_DIR} ${SUDUKO_THIRD_PARTY_DIR})
 include_directories(BEFORE src)
+
+set(SUDUKO_THIRD_PARTY_LIBS
+        fmt
+)
 
 add_library(suduko_libs
         ${PROJECT_SOURCE_DIR}/src/suduko.cpp
         ${PROJECT_SOURCE_DIR}/src/grid.cpp
 )
 
+target_link_libraries(suduko_libs PUBLIC ${SUDUKO_THIRD_PARTY_LIBS})
+
 add_executable(suduko_main ${PROJECT_SOURCE_DIR}/src/main.cpp)
 target_link_libraries(suduko_main PUBLIC suduko_libs)
+
+add_subdirectory(third-party)

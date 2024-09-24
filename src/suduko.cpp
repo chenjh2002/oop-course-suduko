@@ -7,6 +7,9 @@
 
 #include <suduko.h>
 
+#include <fmt/core.h>
+#include <fmt/color.h>
+
 namespace suduko {
 SuDuKo::SuDuKo(const std::string &grid_string, int32_t grid_size, int32_t box_size)
   : Grid(grid_string, grid_size, box_size) {
@@ -96,7 +99,11 @@ auto SuDuKo::GetInference() -> std::shared_ptr<grid_element_t[]> {
 void SuDuKo::PrintResult() {
   for (int i = 0; i < grid_size_; ++i) {
     for (int j = 0; j < grid_size_; ++j) {
-      std::cout << static_cast<int>(ans_[i * grid_size_ + j]) << " ";
+      if (!grid_[i * grid_size_ +j]) {
+        std::cout << fmt::format(fg(fmt::color::orange_red) | fmt::emphasis::underline, std::to_string(ans_[i * grid_size_ + j])) << " ";
+      } else {
+        std::cout << static_cast<int>(ans_[i * grid_size_ + j]) << " ";
+      }
     }
     std::cout << std::endl;
   }
