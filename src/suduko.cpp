@@ -38,6 +38,40 @@ SuDuKo::SuDuKo(const std::string &grid_string, int32_t grid_size, int32_t box_si
   }
 }
 
+SuDuKo::SuDuKo(suduko::SuDuKo &&other) noexcept {
+  if (this != &other) {
+    // Father class component
+    this->grid_ = std::move(other.grid_);
+    this->grid_size_ = other.grid_size_;
+    this->box_size_ = other.box_size_;
+    //  Flush the inference component
+    this->row_grid_bitmap_ = std::move(other.row_grid_bitmap_);
+    this->col_grid_bitmap_ = std::move(other.col_grid_bitmap_);
+    this->row_mask_ = std::move(other.row_mask_);
+    this->col_mask_ = std::move(other.col_mask_);
+    this->empty_hole_ = std::move(other.empty_hole_);
+    this->ans_ = std::move(other.ans_);
+  }
+}
+
+SuDuKo &SuDuKo::operator=(suduko::SuDuKo &&other) noexcept {
+  if (this != &other) {
+    // Father class component
+    this->grid_ = std::move(other.grid_);
+    this->grid_size_ = other.grid_size_;
+    this->box_size_ = other.box_size_;
+    //  Flush the inference component
+    this->row_grid_bitmap_ = std::move(other.row_grid_bitmap_);
+    this->col_grid_bitmap_ = std::move(other.col_grid_bitmap_);
+    this->row_mask_ = std::move(other.row_mask_);
+    this->col_mask_ = std::move(other.col_mask_);
+    this->empty_hole_ = std::move(other.empty_hole_);
+    this->ans_ = std::move(other.ans_);
+  }
+
+  return *this;
+}
+
 auto SuDuKo::GetInference() -> std::shared_ptr<grid_element_t[]> {
   size_t dfs_index = 0;
   auto cache_mask = std::vector<uint16_t>();
@@ -97,6 +131,7 @@ auto SuDuKo::GetInference() -> std::shared_ptr<grid_element_t[]> {
 }
 
 void SuDuKo::PrintResult() {
+  std::cout << "====================Result====================\n";
   for (int i = 0; i < grid_size_; ++i) {
     for (int j = 0; j < grid_size_; ++j) {
       if (!grid_[i * grid_size_ +j]) {
@@ -107,6 +142,7 @@ void SuDuKo::PrintResult() {
     }
     std::cout << std::endl;
   }
+  std::cout << "==============================================\n";
 }
 
 } // namespace suduko

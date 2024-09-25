@@ -19,7 +19,7 @@ namespace suduko {
  */
 class Grid {
  public:
-  Grid() = delete;
+  Grid() = default;
   explicit Grid(const std::string& grid_string, int32_t grid_size, int32_t box_size);
   /** Move constructor */
   Grid(Grid &&other) noexcept ;

@@ -9,7 +9,7 @@
 
 auto main(int argc, char **argv) -> int {
   std::string grid_string =
-      "000704090023000000400006003276000100000108000001000564900500007000000930050302000";
+      "009000080601902007000000006000003040008705200040600000500000000300009001060000720";
   suduko::SuDuKo suduko(grid_string);
   auto ans = suduko.GetInference();
   suduko.PrintResult();

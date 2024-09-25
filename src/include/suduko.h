@@ -17,6 +17,12 @@ class SuDuKo : public Grid {
  public:
   explicit SuDuKo(const std::string &grid_string, int32_t grid_size = MAX_GRID_SIZE, int32_t box_size  = MAX_BOX_SIZE);
 
+  SuDuKo(SuDuKo && other) noexcept;
+
+  SuDuKo &operator=(SuDuKo &&other) noexcept;
+
+  ~SuDuKo() = default;
+
   auto GetInference() -> std::shared_ptr<grid_element_t []>;
 
   void PrintResult();
