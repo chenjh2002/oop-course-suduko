@@ -32,9 +32,11 @@ class SuDuKo : public Grid {
   /** Bitmap for the grid */
   std::shared_ptr<uint16_t []> row_grid_bitmap_;
   std::shared_ptr<uint16_t []> col_grid_bitmap_;
+  std::shared_ptr<uint16_t[]> box_bitmap_;
   /** Bitmap for the mask*/
   std::shared_ptr<uint16_t []> row_mask_;
   std::shared_ptr<uint16_t []> col_mask_;
+  std::shared_ptr<uint16_t []> box_mask_;
   /** Empty hole of the grid */
   std::vector<std::pair<int, int>> empty_hole_;
   /** Answer of the suduko */

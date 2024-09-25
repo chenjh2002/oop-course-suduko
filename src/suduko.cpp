@@ -15,14 +15,18 @@ SuDuKo::SuDuKo(const std::string &grid_string, int32_t grid_size, int32_t box_si
   : Grid(grid_string, grid_size, box_size) {
   row_grid_bitmap_ = std::make_shared<uint16_t []>(grid_size_);
   col_grid_bitmap_ = std::make_shared<uint16_t []>(grid_size_);
+  box_bitmap_ = std::make_shared<uint16_t[]>(grid_size_ * grid_size_ / box_size_ / box_size_);
   memset(row_grid_bitmap_.get(), 0, grid_size_);
   memset(col_grid_bitmap_.get(), 0, grid_size_);
+  memset(box_bitmap_.get(), 0, grid_size_ * grid_size_ / box_size_ / box_size_);
 
   // Initialize the mask
   row_mask_ = std::make_shared<uint16_t []>(grid_size_);
   col_mask_ = std::make_shared<uint16_t []>(grid_size_);
+  box_mask_ = std::make_shared<uint16_t[]>(grid_size_ * grid_size_ / box_size_ / box_size_);
   memset(row_mask_.get(), 0, grid_size_);
   memset(col_mask_.get(), 0, grid_size_);
+  memset(box_mask_.get(), 0, grid_size_ * grid_size_ / box_size_ / box_size_);
 
   ans_ = std::make_shared<grid_element_t []>(grid_size_ * grid_size_);
 
@@ -33,6 +37,7 @@ SuDuKo::SuDuKo(const std::string &grid_string, int32_t grid_size, int32_t box_si
       } else {
         row_grid_bitmap_[i] |= __number_to_mask(grid_[i * grid_size_ + j]);
         col_grid_bitmap_[j] |= __number_to_mask(grid_[i * grid_size_ + j]);
+        box_bitmap_[i / box_size_ * grid_size_ / box_size_  + j / box_size_] |= __number_to_mask(grid_[i * grid_size_ + j]);
       }
     }
   }
@@ -47,8 +52,10 @@ SuDuKo::SuDuKo(suduko::SuDuKo &&other) noexcept {
     //  Flush the inference component
     this->row_grid_bitmap_ = std::move(other.row_grid_bitmap_);
     this->col_grid_bitmap_ = std::move(other.col_grid_bitmap_);
+    this->box_bitmap_ = std::move(other.box_bitmap_);
     this->row_mask_ = std::move(other.row_mask_);
     this->col_mask_ = std::move(other.col_mask_);
+    this->box_mask_ = std::move(other.box_mask_);
     this->empty_hole_ = std::move(other.empty_hole_);
     this->ans_ = std::move(other.ans_);
   }
@@ -63,8 +70,10 @@ SuDuKo &SuDuKo::operator=(suduko::SuDuKo &&other) noexcept {
     //  Flush the inference component
     this->row_grid_bitmap_ = std::move(other.row_grid_bitmap_);
     this->col_grid_bitmap_ = std::move(other.col_grid_bitmap_);
+    this->box_bitmap_ = std::move(other.box_bitmap_);
     this->row_mask_ = std::move(other.row_mask_);
     this->col_mask_ = std::move(other.col_mask_);
+    this->box_mask_ = std::move(other.box_mask_);
     this->empty_hole_ = std::move(other.empty_hole_);
     this->ans_ = std::move(other.ans_);
   }
@@ -80,11 +89,18 @@ auto SuDuKo::GetInference() -> std::shared_ptr<grid_element_t[]> {
     // Get avaliable point
     auto avaliable{-1};
     uint16_t current_mask = row_mask_[empty_hole_[dfs_index].first] | col_mask_[empty_hole_[dfs_index].second]
-        | row_grid_bitmap_[empty_hole_[dfs_index].first] | col_grid_bitmap_[empty_hole_[dfs_index].second];
+        | row_grid_bitmap_[empty_hole_[dfs_index].first] | col_grid_bitmap_[empty_hole_[dfs_index].second]
+        | box_bitmap_[empty_hole_[dfs_index].first / box_size_ * grid_size_ / box_size_
+            + empty_hole_[dfs_index].second / box_size_]
+        | box_mask_[empty_hole_[dfs_index].first / box_size_ * grid_size_ / box_size_
+                + empty_hole_[dfs_index].second / box_size_] ;
     if (current_mask == FULL_MASK) {
       dfs_index--;
       row_mask_[empty_hole_[dfs_index].first] &= ~__number_to_mask(cache_mask.back());
       col_mask_[empty_hole_[dfs_index].second] &= ~__number_to_mask(cache_mask.back());
+      box_mask_[empty_hole_[dfs_index].first / box_size_ * grid_size_ / box_size_
+          + empty_hole_[dfs_index].second / box_size_]
+          &= ~__number_to_mask(cache_mask.back());
       cache_mask.pop_back();
       continue;
     }
@@ -105,6 +121,8 @@ auto SuDuKo::GetInference() -> std::shared_ptr<grid_element_t[]> {
       dfs_index--;
       row_mask_[empty_hole_[dfs_index].first] &= ~__number_to_mask(cache_mask.back());
       col_mask_[empty_hole_[dfs_index].second] &= ~__number_to_mask(cache_mask.back());
+      box_mask_[empty_hole_[dfs_index].first / box_size_ * grid_size_ / box_size_
+          + empty_hole_[dfs_index].second / box_size_] &= ~__number_to_mask(cache_mask.back());
       cache_mask.pop_back();
       continue;
     }
@@ -112,6 +130,8 @@ auto SuDuKo::GetInference() -> std::shared_ptr<grid_element_t[]> {
     row_mask_[empty_hole_[dfs_index].first] |= __number_to_mask(avaliable);
     col_mask_[empty_hole_[dfs_index].second] |= __number_to_mask(avaliable);
     path_record[dfs_index] |= __number_to_mask(avaliable);
+    box_mask_[empty_hole_[dfs_index].first / box_size_ * grid_size_ / box_size_
+        + empty_hole_[dfs_index].second / box_size_] |= __number_to_mask(avaliable);
     cache_mask.emplace_back(avaliable);
     dfs_index++;
   }
