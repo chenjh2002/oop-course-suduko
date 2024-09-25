@@ -42,6 +42,21 @@ TEST(SudukoTest, InferenceTest1) {
 
       EXPECT_EQ(static_cast<uint16_t>(column_grid_bitmap), FULL_MASK);
     }
+
+    // Test for box
+    auto box_bitmap = std::make_shared<uint16_t[]>(MAX_GRID_SIZE * MAX_GRID_SIZE / MAX_BOX_SIZE / MAX_BOX_SIZE);
+    memset(box_bitmap.get(), 0, MAX_GRID_SIZE * MAX_GRID_SIZE / MAX_BOX_SIZE / MAX_BOX_SIZE);
+    for (int i = 0; i < MAX_GRID_SIZE; ++i) {
+      for (int j = 0; j < MAX_GRID_SIZE; ++j) {
+        box_bitmap[i / MAX_BOX_SIZE * MAX_GRID_SIZE / MAX_BOX_SIZE  + j / MAX_BOX_SIZE]
+            |= __number_to_mask(ans[i + j * MAX_GRID_SIZE]);
+      }
+    }
+
+
+    for (int i = 0; i < MAX_GRID_SIZE * MAX_GRID_SIZE / MAX_BOX_SIZE / MAX_BOX_SIZE; ++i) {
+      EXPECT_EQ(static_cast<uint16_t>(box_bitmap[i]), FULL_MASK);
+    }
   }
 }
 
