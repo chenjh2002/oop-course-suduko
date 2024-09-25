@@ -71,4 +71,5 @@ target_link_libraries(suduko_libs PUBLIC ${SUDUKO_THIRD_PARTY_LIBS})
 add_executable(suduko_main ${PROJECT_SOURCE_DIR}/src/main.cpp)
 target_link_libraries(suduko_main PUBLIC suduko_libs)
 
+add_subdirectory(test)
 add_subdirectory(third-party)
